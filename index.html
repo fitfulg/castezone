@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow, noarchive">
+    <meta name="googlebot" content="noindex, nofollow, noarchive">
+    <title>Buscador de zonas de Castelldefels</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">Castelldefels</p>
+          <h1>Buscador de zonas</h1>
+        </div>
+        <p class="status-pill" id="dataStatus">Cargando datos...</p>
+      </header>
+
+      <section class="search-panel" aria-label="Buscador">
+        <label for="searchInput">Buscar por zona o barrio</label>
+        <input
+          id="searchInput"
+          type="search"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="Ej. Poal, Maragall, Montemar..."
+          aria-describedby="searchHelp"
+        >
+        <p id="searchHelp">Empieza a buscar con 2 letras o mas.</p>
+      </section>
+
+      <section class="results-wrap" aria-live="polite" aria-busy="false">
+        <div class="results-meta">
+          <h2 id="resultsTitle">Resultados</h2>
+          <span id="resultsCount"></span>
+        </div>
+        <div id="message" class="message">Escribe al menos 2 letras para ver resultados.</div>
+        <div id="results" class="results" hidden></div>
+      </section>
+    </main>
+
+    <template id="resultTemplate">
+      <article class="result-card">
+        <div class="result-main">
+          <h3 class="zone-name"></h3>
+          <dl class="details">
+            <div>
+              <dt>Barrio</dt>
+              <dd class="neighborhood"></dd>
+            </div>
+            <div>
+              <dt>Codigo barrio</dt>
+              <dd class="neighborhood-code"></dd>
+            </div>
+          </dl>
+        </div>
+        <div class="code-block">
+          <span>Codigo zona</span>
+          <strong class="zone-code"></strong>
+          <button class="copy-button" type="button">Copiar</button>
+        </div>
+      </article>
+    </template>
+
+    <script src="script.js"></script>
+  </body>
+</html>
