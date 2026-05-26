@@ -1,4 +1,4 @@
-const DATA_URL = "zonas.csv?v=2026-05-26-p13";
+const DATA_URL = "zonas.csv?v=2026-05-26-code-search";
 const MIN_SEARCH_LENGTH = 2;
 const REQUIRED_COLUMNS = ["barrio_codigo", "barrio", "zona_codigo", "zona"];
 
@@ -23,6 +23,10 @@ function normalizeText(value) {
     .replace(/[\u0300-\u036f]/g, "")
     .toLocaleLowerCase("es")
     .trim();
+}
+
+function normalizeCode(value) {
+  return String(value ?? "").replace(/\D/g, "");
 }
 
 function parseCsv(text) {
@@ -86,11 +90,23 @@ function rowsFromCsv(text) {
 function getMatchScore(row, normalizedQuery) {
   const zone = normalizeText(row.zona);
   const neighborhood = normalizeText(row.barrio);
+  const zoneCode = normalizeCode(row.zona_codigo);
+  const neighborhoodCode = normalizeCode(row.barrio_codigo);
+  const queryCode = normalizeCode(normalizedQuery);
 
-  if (zone.startsWith(normalizedQuery)) return 0;
-  if (neighborhood.startsWith(normalizedQuery)) return 1;
-  if (zone.includes(normalizedQuery)) return 2;
-  if (neighborhood.includes(normalizedQuery)) return 3;
+  if (queryCode.length >= MIN_SEARCH_LENGTH) {
+    if (zoneCode === queryCode) return -2;
+    if (zoneCode.startsWith(queryCode)) return -1;
+    if (neighborhoodCode === queryCode) return 0;
+    if (neighborhoodCode.startsWith(queryCode)) return 1;
+    if (zoneCode.includes(queryCode)) return 2;
+    if (neighborhoodCode.includes(queryCode)) return 3;
+  }
+
+  if (zone.startsWith(normalizedQuery)) return 4;
+  if (neighborhood.startsWith(normalizedQuery)) return 5;
+  if (zone.includes(normalizedQuery)) return 6;
+  if (neighborhood.includes(normalizedQuery)) return 7;
 
   return Number.POSITIVE_INFINITY;
 }
