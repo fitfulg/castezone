@@ -1,4 +1,4 @@
-const DATA_URL = "zonas.csv?v=2026-05-26-code-search";
+const DATA_URL = "zonas.csv?v=2026-05-26-code-search-2";
 const MIN_SEARCH_LENGTH = 2;
 const REQUIRED_COLUMNS = ["barrio_codigo", "barrio", "zona_codigo", "zona"];
 
@@ -27,6 +27,20 @@ function normalizeText(value) {
 
 function normalizeCode(value) {
   return String(value ?? "").replace(/\D/g, "");
+}
+
+function getZoneCodeVariants(row) {
+  const fullCode = normalizeCode(row.zona_codigo);
+  const neighborhoodCode = normalizeCode(row.barrio_codigo);
+  const zoneTail = fullCode.slice(-4);
+  const districtPrefix = neighborhoodCode.slice(0, 2);
+
+  return new Set([
+    fullCode,
+    zoneTail,
+    `${districtPrefix}${zoneTail}`,
+    `${neighborhoodCode}${zoneTail}`,
+  ].filter(Boolean));
 }
 
 function parseCsv(text) {
@@ -90,16 +104,16 @@ function rowsFromCsv(text) {
 function getMatchScore(row, normalizedQuery) {
   const zone = normalizeText(row.zona);
   const neighborhood = normalizeText(row.barrio);
-  const zoneCode = normalizeCode(row.zona_codigo);
+  const zoneCodeVariants = getZoneCodeVariants(row);
   const neighborhoodCode = normalizeCode(row.barrio_codigo);
   const queryCode = normalizeCode(normalizedQuery);
 
   if (queryCode.length >= MIN_SEARCH_LENGTH) {
-    if (zoneCode === queryCode) return -2;
-    if (zoneCode.startsWith(queryCode)) return -1;
+    if (zoneCodeVariants.has(queryCode)) return -2;
+    if ([...zoneCodeVariants].some((code) => code.startsWith(queryCode))) return -1;
     if (neighborhoodCode === queryCode) return 0;
     if (neighborhoodCode.startsWith(queryCode)) return 1;
-    if (zoneCode.includes(queryCode)) return 2;
+    if ([...zoneCodeVariants].some((code) => code.includes(queryCode))) return 2;
     if (neighborhoodCode.includes(queryCode)) return 3;
   }
 
